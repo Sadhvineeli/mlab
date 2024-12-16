@@ -1,0 +1,35 @@
+import random
+import matplotlib.pyplot as plt
+
+# Genetic Algorithm
+def genetic_algorithm(pop_size, num_bits, mutation_rate, num_generations):
+    random.seed(42)
+    population = [''.join(random.choice('01') for _ in range(num_bits)) for _ in range(pop_size)]
+    best_fitness_values = []
+
+    for gen in range(num_generations):
+        fitness = [int(ind, 2) ** 2 for ind in population]
+        next_population = []
+
+        for _ in range(pop_size // 2):
+            parents = random.choices(population, weights=fitness, k=2)
+            point = random.randint(1, num_bits - 1)
+            children = [parents[0][:point] + parents[1][point:], parents[1][:point] + parents[0][point:]]
+            next_population.extend(
+                [''.join(bit if random.random() > mutation_rate else str(1 - int(bit)) for bit in child)
+                 for child in children])
+
+        population = next_population
+        best_fitness = max(int(ind, 2) ** 2 for ind in population)
+        best_fitness_values.append(best_fitness)
+        print(f"Gen {gen + 1}: Best Fitness = {best_fitness}")
+
+    plt.plot(range(1, num_generations + 1), best_fitness_values, marker='o')
+    plt.title('Best Fitness Over Generations')
+    plt.xlabel('Generation')
+    plt.ylabel('Best Fitness')
+    plt.grid(True)
+    plt.show()
+
+# Run the Genetic Algorithm
+genetic_algorithm(pop_size=4, num_bits=5, mutation_rate=0.1, num_generations=3)
